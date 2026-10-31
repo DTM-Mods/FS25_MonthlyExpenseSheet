@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<modDesc descVersion="113">
+    <author>PropaineX</author>
+    <version>0.1.0.0</version>
+    <title>
+        <en>Monthly Expense Sheet Pro Edition</en>
+    </title>
+    <description>
+        <en><![CDATA[Keeps a record of every money change on your farm, the same ones that pop up under your balance in the top right corner, and sorts them by month. Money that changes without a popup is caught too and listed as "Untracked balance changes", so the sheet always adds up to what happened to your balance.
+
+Press Left Alt + M to open the sheet. Expenses and income are listed by category with the number of charges, the month's total and last month's total. Select a category to see every single charge with its date and time.
+
+Q / E: previous / next month. Arrow keys: select a category. Left / Right: switch between expenses and income. Mouse wheel scrolls the details. Esc or Left Alt + M closes the sheet.
+
+The records are saved with your savegame (the last 24 months). Works in multiplayer: the server keeps the records, each player sees their own farm.]]></en>
+    </description>
+    <iconFilename>icon_MonthlyExpenseSheet.dds</iconFilename>
+    <multiplayer supported="true" />
+
+    <extraSourceFiles>
+        <sourceFile filename="scripts/MonthlyExpenseSheet.lua" />
+        <sourceFile filename="scripts/MonthlyExpenseSheetEvents.lua" />
+        <sourceFile filename="scripts/MonthlyExpenseSheetDisplay.lua" />
+    </extraSourceFiles>
+
+    <actions>
+        <action name="MES_TOGGLE_SHEET" />
+    </actions>
+
+    <inputBinding>
+        <actionBinding action="MES_TOGGLE_SHEET">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_m" />
+        </actionBinding>
+    </inputBinding>
+
+    <l10n>
+        <text name="input_MES_TOGGLE_SHEET"><en>Open / close Monthly Expense Sheet</en></text>
+        <text name="mes_title"><en>MONTHLY EXPENSE SHEET</en></text>
+        <text name="mes_year"><en>Year %d</en></text>
+        <text name="mes_expenses"><en>EXPENSES</en></text>
+        <text name="mes_income"><en>INCOME</en></text>
+        <text name="mes_category"><en>Category</en></text>
+        <text name="mes_charges"><en>Charges</en></text>
+        <text name="mes_amount"><en>Amount</en></text>
+        <text name="mes_lastMonth"><en>Last month</en></text>
+        <text name="mes_totalExpenses"><en>TOTAL EXPENSES</en></text>
+        <text name="mes_totalIncome"><en>TOTAL INCOME</en></text>
+        <text name="mes_net"><en>Net for month</en></text>
+        <text name="mes_details"><en>DETAILS: %s</en></text>
+        <text name="mes_dateTime"><en>Date / time</en></text>
+        <text name="mes_noEntries"><en>Nothing recorded this month yet.</en></text>
+        <text name="mes_noMonths"><en>Nothing recorded yet. Every money change from now on will show up here.</en></text>
+        <text name="mes_loading"><en>Loading from server...</en></text>
+        <text name="mes_keyClose"><en>Close</en></text>
+        <text name="mes_keyMonth"><en>Prev / Next month</en></text>
+        <text name="mes_keySelect"><en>Select category</en></text>
+        <text name="mes_keySide"><en>Expenses / Income</en></text>
+        <text name="mes_otherExpense"><en>Other expenses</en></text>
+        <text name="mes_otherIncome"><en>Other income</en></text>
+        <text name="mes_untracked"><en>Untracked balance changes</en></text>
+    </l10n>
+</modDesc>

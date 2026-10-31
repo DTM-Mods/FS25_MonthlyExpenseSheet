@@ -1,0 +1,5 @@
+*.zip
+__pycache__/
+# made from a game screenshot: keep local
+previews/game_backdrop.png
+previews/sheet_preview_*.png
