@@ -20,6 +20,23 @@ MonthlyExpenseSheet.MAX_ENTRIES_PER_MONTH = 400
 
 MonthlyExpenseSheet.BALANCE_CHECK_INTERVAL = 1000
 MonthlyExpenseSheet.UNTRACKED = "mesUntracked"
+MonthlyExpenseSheet.GENERATOR = "mesGenerator"
+MonthlyExpenseSheet.SOLD = "mesSold"
+MonthlyExpenseSheet.POPUP = "mesPopup"
+-- generic "other" money gets the paying mod's name appended to its title: title .. SOURCE_SEPARATOR .. mod title
+MonthlyExpenseSheet.SOURCE_SEPARATOR = "@@"
+
+-- placeable whose hourly income (generators, wind turbines, solar panels) is being paid right now
+MonthlyExpenseSheet.incomePlaceable = nil
+-- selling station and fill type being sold right now
+MonthlyExpenseSheet.sellingStation = nil
+MonthlyExpenseSheet.sellingFillType = nil
+-- animal type sold at the animal dealer right now
+MonthlyExpenseSheet.sellingAnimalType = nil
+-- production point whose code is running right now (direct sell pays from inside it)
+MonthlyExpenseSheet.productionPoint = nil
+-- debug source -> mod title (false = not a mod)
+MonthlyExpenseSheet.sourceMods = {}
 
 MonthlyExpenseSheet.farms = {}
 -- balance check: farmId -> {balance, recorded since then}
@@ -138,13 +155,238 @@ function MonthlyExpenseSheet.onAddMoney(mission, amount, farmId, moneyType, ...)
         title = moneyType.title or title
     end
 
+    local placeable = MonthlyExpenseSheet.incomePlaceable
+    local fillType = MonthlyExpenseSheet.sellingFillType ~= nil and g_fillTypeManager:getFillTypeByIndex(MonthlyExpenseSheet.sellingFillType) or nil
+    if fillType ~= nil and amount > 0 then
+        statistic = MonthlyExpenseSheet.SOLD
+        title = fillType.title
+    elseif MonthlyExpenseSheet.sellingAnimalType ~= nil and amount > 0 then
+        statistic = MonthlyExpenseSheet.SOLD
+        title = MonthlyExpenseSheet.getAnimalTitle(MonthlyExpenseSheet.sellingAnimalType)
+    elseif MonthlyExpenseSheet.productionPoint ~= nil and amount > 0 then
+        statistic = MonthlyExpenseSheet.SOLD
+        title = MonthlyExpenseSheet.getProductionSaleText(MonthlyExpenseSheet.productionPoint)
+    elseif placeable ~= nil and moneyType == MoneyType.PROPERTY_INCOME then
+        statistic = MonthlyExpenseSheet.GENERATOR
+        title = MonthlyExpenseSheet.getGeneratorName(placeable, farmId)
+    elseif statistic == "other" and (title == "" or title == "finance_other") then
+        local modTitle = MonthlyExpenseSheet.getCallingMod()
+        if modTitle ~= nil then
+            title = title .. MonthlyExpenseSheet.SOURCE_SEPARATOR .. modTitle
+        end
+    end
+
     local year, period, day, hour, minute = MonthlyExpenseSheet.getNow()
     MonthlyExpenseSheet.record(farmId, amount, statistic, title, year, period, day, hour, minute)
+    MonthlyExpenseSheet.lastRecord = {farmId = farmId, amount = amount, statistic = statistic, title = title, moneyType = moneyType,
+        year = year, period = period, day = day, hour = hour, minute = minute}
 
     local balance = MonthlyExpenseSheet.balances[farmId]
     if balance ~= nil then
         balance.recorded = balance.recorded + amount
     end
+end
+
+-- title of the mod that called addMoney, nil when it was the game itself
+function MonthlyExpenseSheet.getCallingMod()
+    if debug == nil or debug.getinfo == nil or g_modManager == nil then
+        return nil
+    end
+
+    for level = 3, 20 do
+        local ok, info = pcall(debug.getinfo, level, "S")
+        if not ok or info == nil then
+            return nil
+        end
+
+        local source = info.source or ""
+        local modTitle = MonthlyExpenseSheet.sourceMods[source]
+        if modTitle == nil then
+            modTitle = false
+            for _, mod in ipairs(g_modManager:getActiveMods()) do
+                if mod.modDir ~= nil and mod.modName ~= MonthlyExpenseSheet.MOD_NAME and source:find(mod.modDir, 1, true) then
+                    modTitle = mod.title or mod.modName
+                    break
+                end
+            end
+            MonthlyExpenseSheet.sourceMods[source] = modTitle
+        end
+        if modTitle then
+            return modTitle
+        end
+    end
+
+    return nil
+end
+
+-- "5G Tower", or "5G Tower 2" when the farm owns more than one of the same
+function MonthlyExpenseSheet.getGeneratorName(placeable, farmId)
+    local name = placeable:getName() or "?"
+    local number, count = 0, 0
+    for _, other in ipairs(g_currentMission.placeableSystem.placeables) do
+        if other.configFileName == placeable.configFileName and other:getOwnerFarmId() == farmId
+            and other.spec_incomePerHour ~= nil then
+            count = count + 1
+            if other == placeable then
+                number = count
+            end
+        end
+    end
+
+    if count > 1 then
+        return string.format("%s %d", name, number)
+    end
+    return name
+end
+
+function MonthlyExpenseSheet.onIncomeHourChanged(placeable, superFunc, ...)
+    MonthlyExpenseSheet.incomePlaceable = placeable
+    local ok, result = pcall(superFunc, placeable, ...)
+    MonthlyExpenseSheet.incomePlaceable = nil
+    if not ok then
+        error(result)
+    end
+    return result
+end
+
+function MonthlyExpenseSheet.onSellFillType(station, superFunc, farmId, fillDelta, fillTypeIndex, ...)
+    MonthlyExpenseSheet.sellingStation = station
+    MonthlyExpenseSheet.sellingFillType = fillTypeIndex
+    local ok, result = pcall(superFunc, station, farmId, fillDelta, fillTypeIndex, ...)
+    MonthlyExpenseSheet.sellingStation = nil
+    MonthlyExpenseSheet.sellingFillType = nil
+    if not ok then
+        error(result)
+    end
+    return result
+end
+
+-- the products the production point is selling directly right now
+function MonthlyExpenseSheet.getProductionSaleText(point)
+    local products, seen = {}, {}
+    local directSell = point.outputFillTypeIdsDirectSell or {}
+    for _, production in ipairs(point.activeProductions or {}) do
+        for _, output in ipairs(production.outputs or {}) do
+            if (directSell[output.type] or output.sellDirectly) and not seen[output.type] then
+                seen[output.type] = true
+                local fillType = g_fillTypeManager:getFillTypeByIndex(output.type)
+                table.insert(products, fillType ~= nil and fillType.title or tostring(output.type))
+            end
+        end
+    end
+
+    return #products > 0 and table.concat(products, ", ") or "?"
+end
+
+-- every ProductionPoint function marks the point as running, so money paid from inside it (direct sell) is
+-- credited to it; the game's direct sell code is not in gameSource.zip, so no single function is named here
+function MonthlyExpenseSheet.wrapProductionPoint()
+    for name, func in pairs(ProductionPoint) do
+        if type(func) == "function" and name ~= "new" then
+            ProductionPoint[name] = function(point, ...)
+                if type(point) ~= "table" then
+                    return func(point, ...)
+                end
+                local previous = MonthlyExpenseSheet.productionPoint
+                MonthlyExpenseSheet.productionPoint = point
+                local results = {pcall(func, point, ...)}
+                MonthlyExpenseSheet.productionPoint = previous
+                if not results[1] then
+                    error(results[2])
+                end
+                return unpack(results, 2, table.maxn(results))
+            end
+        end
+    end
+end
+
+-- takes one money change back out (it is recorded again under another name)
+function MonthlyExpenseSheet.unrecord(last)
+    local month = MonthlyExpenseSheet.getMonth(MonthlyExpenseSheet.getFarmMonths(last.farmId), last.year, last.period)
+    local moneyType = MonthlyExpenseSheet.getType(month, last.statistic, last.title, last.amount > 0)
+    moneyType.amount = moneyType.amount - last.amount
+    moneyType.count = moneyType.count - 1
+    if moneyType.count <= 0 then
+        month.types[moneyType.key] = nil
+    end
+
+    for i = #month.entries, 1, -1 do
+        local entry = month.entries[i]
+        if entry.typeKey == moneyType.key and entry.day == last.day and entry.hour == last.hour then
+            entry.amount = entry.amount - last.amount
+            entry.count = entry.count - 1
+            if entry.count <= 0 then
+                table.remove(month.entries, i)
+            end
+            break
+        end
+    end
+end
+
+-- "Goats"; one row per animal type, young and grown animals together
+function MonthlyExpenseSheet.getAnimalTitle(animalType)
+    if animalType.groupTitle ~= nil and animalType.groupTitle ~= "" then
+        return animalType.groupTitle
+    end
+    local name = (animalType.name or "?"):lower()
+    return (name:gsub("^%l", string.upper))
+end
+
+-- the animal type a popup text names, e.g. "Excess animals - 5 goat"
+function MonthlyExpenseSheet.findAnimalType(text)
+    local animalSystem = g_currentMission.animalSystem
+    if animalSystem == nil or animalSystem.types == nil then
+        return nil
+    end
+    text = text:lower()
+    for _, animalType in ipairs(animalSystem.types) do
+        if animalType.name ~= nil and text:find(animalType.name:lower(), 1, true) then
+            return animalType
+        end
+    end
+    return nil
+end
+
+function MonthlyExpenseSheet.onAnimalSellRun(event, superFunc, ...)
+    local husbandry = event.husbandry or event.object
+    local spec = type(husbandry) == "table" and husbandry.spec_husbandryAnimals or nil
+    if spec ~= nil then
+        MonthlyExpenseSheet.sellingAnimalType = spec.animalType
+    elseif type(event.message) == "string" then
+        -- FS25_ExcessAnimalsSold: "Excess animals sold - 5 goat"
+        MonthlyExpenseSheet.sellingAnimalType = MonthlyExpenseSheet.findAnimalType(event.message)
+    end
+    local ok, result = pcall(superFunc, event, ...)
+    MonthlyExpenseSheet.sellingAnimalType = nil
+    if not ok then
+        error(result)
+    end
+    return result
+end
+
+-- When a mod puts its own text in the money popup in the top right corner (e.g. "Excess animals - 5 Baby goats"),
+-- the money it just paid is listed under that text instead; numbers are left out so every sale lands in one row.
+function MonthlyExpenseSheet.onShowMoneyChange(object, moneyType, text, ...)
+    local last = MonthlyExpenseSheet.lastRecord
+    MonthlyExpenseSheet.lastRecord = nil
+    if g_server == nil or last == nil or type(text) ~= "string" or text == "" or last.moneyType ~= moneyType then
+        return
+    end
+
+    local title = text:gsub("%d+", ""):gsub("%s+", " "):gsub("^[%s%-]+", ""):gsub("[%s%-]+$", "")
+    if title == "" then
+        return
+    end
+
+    local statistic = MonthlyExpenseSheet.POPUP
+    local animalType = moneyType == MoneyType.SOLD_ANIMALS and MonthlyExpenseSheet.findAnimalType(text) or nil
+    if animalType ~= nil then
+        statistic = MonthlyExpenseSheet.SOLD
+        title = MonthlyExpenseSheet.getAnimalTitle(animalType)
+    end
+
+    MonthlyExpenseSheet.unrecord(last)
+    MonthlyExpenseSheet.record(last.farmId, last.amount, statistic, title, last.year, last.period, last.day, last.hour, last.minute)
 end
 
 -- Catches money that changes without going through addMoney (some mods change the farm balance directly):
@@ -181,8 +423,22 @@ function MonthlyExpenseSheet.getTypeName(moneyType)
         return g_i18n:getText("mes_untracked", MonthlyExpenseSheet.MOD_NAME)
     end
 
+    if statistic == MonthlyExpenseSheet.POPUP then
+        return moneyType.title or "?"
+    end
+    if statistic == MonthlyExpenseSheet.SOLD then
+        return g_i18n:getText("mes_sold", MonthlyExpenseSheet.MOD_NAME):format(moneyType.title or "?")
+    end
+    if statistic == MonthlyExpenseSheet.GENERATOR then
+        return g_i18n:getText("mes_generator", MonthlyExpenseSheet.MOD_NAME):format(moneyType.title or "?")
+    end
+
     -- the l10n key the popup uses; mods sometimes give plain text instead
-    local title = moneyType.title
+    local title = moneyType.title or ""
+    local separator = title:find(MonthlyExpenseSheet.SOURCE_SEPARATOR, 1, true)
+    if separator ~= nil then
+        return title:sub(separator + #MonthlyExpenseSheet.SOURCE_SEPARATOR)
+    end
     if title ~= nil and title ~= "" then
         if g_i18n:hasText(title) then
             return g_i18n:getText(title)
@@ -344,6 +600,17 @@ end
 -- mod listener -----------------------------------------------------------------------------------------
 
 function MonthlyExpenseSheet:loadMap(filename)
+    if ExcessAnimalsSoldEvent ~= nil and ExcessAnimalsSoldEvent.run ~= nil then
+        local superExcessRun = ExcessAnimalsSoldEvent.run
+        ExcessAnimalsSoldEvent.run = function(event, ...)
+            return MonthlyExpenseSheet.onAnimalSellRun(event, superExcessRun, ...)
+        end
+    end
+
+    local hud = g_currentMission.hud
+    if hud ~= nil and hud.showMoneyChange ~= nil then
+        hud.showMoneyChange = Utils.prependedFunction(hud.showMoneyChange, MonthlyExpenseSheet.onShowMoneyChange)
+    end
     if g_server ~= nil then
         MonthlyExpenseSheet.loadFromXMLFile()
     end
@@ -372,6 +639,21 @@ function MonthlyExpenseSheet:mouseEvent(posX, posY, isDown, isUp, button)
 end
 
 FSBaseMission.addMoney = Utils.prependedFunction(FSBaseMission.addMoney, MonthlyExpenseSheet.onAddMoney)
+local superIncomeHourChanged = PlaceableIncomePerHour.onHourChanged
+PlaceableIncomePerHour.onHourChanged = function(placeable, ...)
+    return MonthlyExpenseSheet.onIncomeHourChanged(placeable, superIncomeHourChanged, ...)
+end
+local superSellFillType = SellingStation.sellFillType
+SellingStation.sellFillType = function(station, ...)
+    return MonthlyExpenseSheet.onSellFillType(station, superSellFillType, ...)
+end
+MonthlyExpenseSheet.wrapProductionPoint()
+if AnimalSellEvent ~= nil and AnimalSellEvent.run ~= nil then
+    local superAnimalSellRun = AnimalSellEvent.run
+    AnimalSellEvent.run = function(event, ...)
+        return MonthlyExpenseSheet.onAnimalSellRun(event, superAnimalSellRun, ...)
+    end
+end
 FSCareerMissionInfo.saveToXMLFile = Utils.appendedFunction(FSCareerMissionInfo.saveToXMLFile, MonthlyExpenseSheet.saveToXMLFile)
 
 addModEventListener(MonthlyExpenseSheet)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="113">
     <author>PropaineX</author>
-    <version>0.1.0.0</version>
+    <version>0.2.1.0</version>
     <title>
         <en>Monthly Expense Sheet Pro Edition</en>
     </title>
@@ -57,6 +57,8 @@ The records are saved with your savegame (the last 24 months). Works in multipla
         <text name="mes_keySide"><en>Expenses / Income</en></text>
         <text name="mes_otherExpense"><en>Other expenses</en></text>
         <text name="mes_otherIncome"><en>Other income</en></text>
+        <text name="mes_sold"><en>Sold %s</en></text>
+        <text name="mes_generator"><en>Generator: %s</en></text>
         <text name="mes_untracked"><en>Untracked balance changes</en></text>
     </l10n>
 </modDesc>
