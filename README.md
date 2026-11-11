@@ -58,6 +58,12 @@ records, each player sees their own farm.
 
 Download `FS25_MonthlyExpenseSheet.zip` from the [latest release](https://github.com/DTM-Mods/FS25_MonthlyExpenseSheet/releases/latest) and put it in `Documents/My Games/FarmingSimulator2025/mods`, without unzipping or renaming it. In multiplayer, the server and every player need the same version.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/DTM-Mods/.github/main/assets/license.jpg" alt="License" width="100%">
+</p>
+
+MIT, see [LICENSE](LICENSE).
+
 <details>
 <summary><b>For developers</b>: files, building and tests</summary>
 
