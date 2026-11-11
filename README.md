@@ -53,8 +53,15 @@ Records are saved with the savegame (`monthlyExpenseSheet.xml`, last 24 months).
 records, each player sees their own farm.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/DTM-Mods/.github/main/assets/files.jpg" alt="Files" width="100%">
+  <img src="https://raw.githubusercontent.com/DTM-Mods/.github/main/assets/installation.jpg" alt="Installation" width="100%">
 </p>
+
+Download `FS25_MonthlyExpenseSheet.zip` from the [latest release](https://github.com/DTM-Mods/FS25_MonthlyExpenseSheet/releases/latest) and put it in `Documents/My Games/FarmingSimulator2025/mods`, without unzipping or renaming it. In multiplayer, the server and every player need the same version.
+
+<details>
+<summary><b>For developers</b>: files, building and tests</summary>
+
+### Files
 
 - `modDesc.xml`, `icon_MonthlyExpenseSheet.dds`
 - `scripts/MonthlyExpenseSheet.lua`: records money changes, balance check, save / load
@@ -62,6 +69,8 @@ records, each player sees their own farm.
 - `scripts/MonthlyExpenseSheetDisplay.lua`: the sheet (drawn on screen) and its controls
 - `tests/preview.py`: runs the real Lua outside the game with sample data and renders the sheet to a PNG
 - `previews/icon_mockup.py`: draws the icon
+
+</details>
 
 ---
 
