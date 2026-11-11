@@ -31,7 +31,9 @@
 When you sleep, the money popups under your balance (top right) scroll by too fast to read. This mod records
 every one of them, sorted by in-game month, so you can see where your money went.
 
-## Use
+<p align="center">
+  <img src="https://raw.githubusercontent.com/DTM-Mods/.github/main/assets/how-to-use.jpg" alt="How to use" width="100%">
+</p>
 
 - **Left Alt + M** opens / closes the sheet (can be changed in the controls menu).
 - **Q / E**: previous / next month. **Up / Down**: select a category. **Left / Right**: expenses / income.
@@ -50,7 +52,9 @@ every one of them, sorted by in-game month, so you can see where your money went
 Records are saved with the savegame (`monthlyExpenseSheet.xml`, last 24 months). Multiplayer: the server keeps the
 records, each player sees their own farm.
 
-## Files
+<p align="center">
+  <img src="https://raw.githubusercontent.com/DTM-Mods/.github/main/assets/files.jpg" alt="Files" width="100%">
+</p>
 
 - `modDesc.xml`, `icon_MonthlyExpenseSheet.dds`
 - `scripts/MonthlyExpenseSheet.lua`: records money changes, balance check, save / load
