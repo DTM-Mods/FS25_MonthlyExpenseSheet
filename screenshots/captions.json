@@ -1,0 +1,17 @@
+{
+  "2.jpg": {
+    "title": "Every charge, by month",
+    "text": "Expenses by category next to last month's amount, with the totals for the month.",
+    "at": "bottom"
+  },
+  "3.jpg": {
+    "title": "Every charge in detail",
+    "text": "Pick a category to see each charge with its date and time; Q and E switch months.",
+    "at": "bottom"
+  },
+  "4.jpg": {
+    "title": "Income too",
+    "text": "Left and Right switch between expenses and income.",
+    "at": "bottom"
+  }
+}
