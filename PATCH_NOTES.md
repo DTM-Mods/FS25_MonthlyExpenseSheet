@@ -4,6 +4,10 @@
 
 # Patch notes
 
+## 0.2.2.0
+- Money from other mods shows its real name instead of a text key: Player Trading+ lines read "Player trade purchases" and the like, not `uwm_finance_expense`.
+- A text key no mod knows shows as words ("Uwm depot expense") instead of the raw key.
+
 ## 0.2.1.0
 - Vehicle sales show as one "Sold Vehicles" line.
 

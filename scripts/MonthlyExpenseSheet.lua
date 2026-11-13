@@ -416,6 +416,39 @@ function MonthlyExpenseSheet.checkBalances(dt)
     end
 end
 
+-- A text from any mod's own l10n: mods' texts live in g_i18n.modEnvironments[modName].texts, which
+-- g_i18n:hasText / getText without that mod's name don't see.
+function MonthlyExpenseSheet.findModText(key)
+    local environments = g_i18n ~= nil and g_i18n.modEnvironments or nil
+    if type(environments) ~= "table" or type(key) ~= "string" then
+        return nil
+    end
+    for _, environment in pairs(environments) do
+        local texts = type(environment) == "table" and environment.texts or nil
+        local text = type(texts) == "table" and texts[key] or nil
+        if type(text) == "string" and text ~= "" then
+            return text
+        end
+    end
+    return nil
+end
+
+-- "uwm_finance_depotExpense" -> "Uwm depot expense"
+function MonthlyExpenseSheet.keyToWords(key)
+    local words = {}
+    for part in key:gmatch("[^_]+") do
+        if part ~= "finance" then
+            local word = part:gsub("(%l)(%u)", "%1 %2"):lower()
+            table.insert(words, word)
+        end
+    end
+    local text = table.concat(words, " ")
+    if text == "" then
+        return key
+    end
+    return (text:gsub("^%l", string.upper))
+end
+
 -- text for a category; the money type's own l10n title when there is one
 function MonthlyExpenseSheet.getTypeName(moneyType)
     local statistic = moneyType.statistic or ""
@@ -443,7 +476,16 @@ function MonthlyExpenseSheet.getTypeName(moneyType)
         if g_i18n:hasText(title) then
             return g_i18n:getText(title)
         end
+        -- a key from another mod's own texts (Player Trading+ registers "uwm_finance_expense" in its modDesc)
+        local modText = MonthlyExpenseSheet.findModText(title)
+        if modText ~= nil then
+            return modText
+        end
         if not title:find("^finance_") then
+            -- a text key nobody knows: readable words instead of the raw key
+            if title:find("^[%w_]+$") and title:find("_") then
+                return MonthlyExpenseSheet.keyToWords(title)
+            end
             return title
         end
     end
