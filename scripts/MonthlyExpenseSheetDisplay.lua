@@ -71,8 +71,11 @@ local function isInside(posX, posY, x, y, w, h)
 end
 
 function MonthlyExpenseSheetDisplay.getMonthName(period, short)
-    local ok, name = pcall(g_i18n.formatPeriod, g_i18n, period, short)
-    if not ok or type(name) ~= "string" or name == "" then
+    local name = nil
+    if g_i18n ~= nil and g_i18n.formatPeriod ~= nil and type(period) == "number" then
+        name = g_i18n:formatPeriod(period, short)
+    end
+    if type(name) ~= "string" or name == "" then
         name = FALLBACK_MONTHS[period] or "?"
         if short then
             name = name:sub(1, 3)
@@ -83,8 +86,11 @@ end
 
 function MonthlyExpenseSheetDisplay.formatMoney(amount)
     local value = math.floor(math.abs(amount) + 0.5)
-    local ok, result = pcall(g_i18n.formatMoney, g_i18n, value, 0, true, true)
-    if ok and type(result) == "string" then
+    local result = nil
+    if g_i18n ~= nil and g_i18n.formatMoney ~= nil then
+        result = g_i18n:formatMoney(value, 0, true, true)
+    end
+    if type(result) == "string" then
         return result
     end
 

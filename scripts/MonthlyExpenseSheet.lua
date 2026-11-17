@@ -194,8 +194,9 @@ function MonthlyExpenseSheet.getCallingMod()
     end
 
     for level = 3, 20 do
-        local ok, info = pcall(debug.getinfo, level, "S")
-        if not ok or info == nil then
+        -- debug.getinfo returns nil past the top of the stack
+        local info = debug.getinfo(level, "S")
+        if info == nil then
             return nil
         end
 
@@ -239,26 +240,48 @@ function MonthlyExpenseSheet.getGeneratorName(placeable, farmId)
     return name
 end
 
+-- The "... right now" markers above are only set while the wrapped game function runs. If that function
+-- throws an error (shown in the log), the marker is not reset by the wrapper; update() clears every marker once
+-- per frame, so a stale one can never be credited to later money.
+function MonthlyExpenseSheet.clearContext()
+    MonthlyExpenseSheet.incomePlaceable = nil
+    MonthlyExpenseSheet.sellingStation = nil
+    MonthlyExpenseSheet.sellingFillType = nil
+    MonthlyExpenseSheet.sellingAnimalType = nil
+    MonthlyExpenseSheet.productionPoint = nil
+end
+
+-- resets the markers after the wrapped function returned and passes on all of its return values
+local function endIncome(...)
+    MonthlyExpenseSheet.incomePlaceable = nil
+    return ...
+end
+
+local function endSelling(...)
+    MonthlyExpenseSheet.sellingStation = nil
+    MonthlyExpenseSheet.sellingFillType = nil
+    return ...
+end
+
+local function endAnimalSelling(...)
+    MonthlyExpenseSheet.sellingAnimalType = nil
+    return ...
+end
+
+local function endProductionPoint(previous, ...)
+    MonthlyExpenseSheet.productionPoint = previous
+    return ...
+end
+
 function MonthlyExpenseSheet.onIncomeHourChanged(placeable, superFunc, ...)
     MonthlyExpenseSheet.incomePlaceable = placeable
-    local ok, result = pcall(superFunc, placeable, ...)
-    MonthlyExpenseSheet.incomePlaceable = nil
-    if not ok then
-        error(result)
-    end
-    return result
+    return endIncome(superFunc(placeable, ...))
 end
 
 function MonthlyExpenseSheet.onSellFillType(station, superFunc, farmId, fillDelta, fillTypeIndex, ...)
     MonthlyExpenseSheet.sellingStation = station
     MonthlyExpenseSheet.sellingFillType = fillTypeIndex
-    local ok, result = pcall(superFunc, station, farmId, fillDelta, fillTypeIndex, ...)
-    MonthlyExpenseSheet.sellingStation = nil
-    MonthlyExpenseSheet.sellingFillType = nil
-    if not ok then
-        error(result)
-    end
-    return result
+    return endSelling(superFunc(station, farmId, fillDelta, fillTypeIndex, ...))
 end
 
 -- the products the production point is selling directly right now
@@ -289,12 +312,7 @@ function MonthlyExpenseSheet.wrapProductionPoint()
                 end
                 local previous = MonthlyExpenseSheet.productionPoint
                 MonthlyExpenseSheet.productionPoint = point
-                local results = {pcall(func, point, ...)}
-                MonthlyExpenseSheet.productionPoint = previous
-                if not results[1] then
-                    error(results[2])
-                end
-                return unpack(results, 2, table.maxn(results))
+                return endProductionPoint(previous, func(point, ...))
             end
         end
     end
@@ -356,12 +374,7 @@ function MonthlyExpenseSheet.onAnimalSellRun(event, superFunc, ...)
         -- FS25_ExcessAnimalsSold: "Excess animals sold - 5 goat"
         MonthlyExpenseSheet.sellingAnimalType = MonthlyExpenseSheet.findAnimalType(event.message)
     end
-    local ok, result = pcall(superFunc, event, ...)
-    MonthlyExpenseSheet.sellingAnimalType = nil
-    if not ok then
-        error(result)
-    end
-    return result
+    return endAnimalSelling(superFunc(event, ...))
 end
 
 -- When a mod puts its own text in the money popup in the top right corner (e.g. "Excess animals - 5 Baby goats"),
@@ -666,6 +679,7 @@ function MonthlyExpenseSheet:deleteMap()
 end
 
 function MonthlyExpenseSheet:update(dt)
+    MonthlyExpenseSheet.clearContext()
     if g_server ~= nil then
         MonthlyExpenseSheet.checkBalances(dt)
     end
