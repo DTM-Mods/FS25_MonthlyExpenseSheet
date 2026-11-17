@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="115">
+<modDesc descVersion="116">
     <author>DTM Mods, PropaineX</author>
-    <version>1.0.0.0</version>
+    <version>1.0.0.1</version>
     <title>
         <en>Monthly Expense Sheet Pro Edition</en>
     </title>
@@ -12,14 +12,20 @@ Press Left Alt + M to open the sheet. Expenses and income are listed by category
 
 Q / E: previous / next month. Arrow keys: select a category. Left / Right: switch between expenses and income. Mouse wheel scrolls the details. Esc or Left Alt + M closes the sheet.
 
-The records are saved with your savegame (the last 24 months). Works in multiplayer: the server keeps the records, each player sees their own farm.]]></en>
+The records are saved with your savegame (the last 24 months). Works in multiplayer: the server keeps the records, each player sees their own farm.
+
+Changelog 1.0.0.1:
+- Updated for the current game version (modDesc version 116).]]></en>
         <de><![CDATA[Zeichnet jede Geldbewegung auf deinem Hof auf, also genau die, die oben rechts unter deinem Kontostand eingeblendet werden, und sortiert sie nach Monaten. Geld, das sich ohne Einblendung ändert, wird ebenfalls erfasst und als "Untracked balance changes" aufgeführt, sodass die Aufstellung immer genau dem entspricht, was mit deinem Kontostand passiert ist.
 
 Mit linker Alt-Taste + M öffnest du die Aufstellung. Ausgaben und Einnahmen werden nach Kategorie aufgelistet, mit der Anzahl der Buchungen, der Summe des Monats und der Summe des Vormonats. Wähle eine Kategorie aus, um jede einzelne Buchung mit Datum und Uhrzeit zu sehen.
 
 Q / E: vorheriger / nächster Monat. Pfeiltasten: Kategorie auswählen. Links / Rechts: zwischen Ausgaben und Einnahmen wechseln. Das Mausrad scrollt die Details. Esc oder linke Alt-Taste + M schließt die Aufstellung.
 
-Die Aufzeichnungen werden mit deinem Spielstand gespeichert (die letzten 24 Monate). Funktioniert im Mehrspielermodus: Der Server führt die Aufzeichnungen, jeder Spieler sieht seinen eigenen Hof.]]></de>
+Die Aufzeichnungen werden mit deinem Spielstand gespeichert (die letzten 24 Monate). Funktioniert im Mehrspielermodus: Der Server führt die Aufzeichnungen, jeder Spieler sieht seinen eigenen Hof.
+
+Changelog 1.0.0.1:
+- An die aktuelle Spielversion angepasst (modDesc-Version 116).]]></de>
     </description>
     <iconFilename>icon_MonthlyExpenseSheet.dds</iconFilename>
     <multiplayer supported="true" />
