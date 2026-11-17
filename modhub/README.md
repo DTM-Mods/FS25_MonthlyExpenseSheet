@@ -35,56 +35,41 @@ Relevé mensuel des dépenses Pro Edition
 
 ## Description English
 ```text
-When you sleep, the money popups under your balance in the top right corner scroll by too fast to read. This mod records every one of them and sorts them by in-game month, so you can see exactly where your money went. Money that changes without a popup is caught too, so the sheet always adds up to your balance.
+Description: Keeps a record of every money change on your farm and sorts it by month and category, so you can see where your money went.
+Hotkeys: Left Alt+M opens and closes the sheet. In the sheet: Q / E previous / next month, Up / Down select a category, Left / Right switch between expenses and income, the mouse wheel scrolls the details, Esc closes. Controller: none by default for opening the sheet, set one under Settings > Controls; in the sheet the controller's menu buttons work as well.
+GitHub: https://github.com/DTM-Mods/FS25_MonthlyExpenseSheet
 
-- Every expense and income category of the month with the number of charges, the month's total and last month's total, with a red or green arrow for up or down.
-- Every single charge in the selected category with its date and time.
-- Total expenses, total income and the net for the month.
-- Sales show what was sold, such as "Sold Wheat"; hourly income from generators, wind turbines and solar is listed per building.
-- Money from other mods shows that mod's name or its own popup text.
-- Records are saved with your savegame (last 24 months). In multiplayer the server keeps the records and each player sees their own farm.
+It records the same money changes that pop up under your balance in the top right corner. Money that changes without a popup is caught too and listed as "Untracked balance changes", so the sheet always adds up to what happened to your balance.
 
-How to use: Left Alt + M opens and closes the sheet. Q / E: previous / next month. Up / Down: select a category. Left / Right: expenses / income. The mouse works too.
+Expenses and income are listed by category with the number of charges, the month's total and last month's total. Select a category to see every single charge with its date and time.
 
-Changelog 0.2.2.0:
-- Money from other mods shows its real name instead of a text key.
-- An unknown text key is shown as readable words instead of the raw key.
+The records are saved with your savegame (the last 24 months). Works in multiplayer: the server keeps the records, each player sees their own farm.
 ```
 
 ## Description German
 ```text
-Wenn du schläfst, laufen die Geldmeldungen unter deinem Kontostand oben rechts zu schnell durch, um sie zu lesen. Diese Mod zeichnet jede einzelne auf und sortiert sie nach Spielmonat, so siehst du genau, wohin dein Geld gegangen ist. Auch Geld, das sich ohne Meldung ändert, wird erfasst, damit die Übersicht immer zu deinem Kontostand passt.
+Beschreibung: Zeichnet jede Geldbewegung auf deinem Hof auf und sortiert sie nach Monat und Kategorie, damit du siehst, wohin dein Geld gegangen ist.
+Tastenkombinationen: Linke Alt-Taste+M öffnet und schließt die Aufstellung. In der Aufstellung: Q / E vorheriger / nächster Monat, Hoch / Runter Kategorie auswählen, Links / Rechts zwischen Ausgaben und Einnahmen wechseln, das Mausrad scrollt die Details, Esc schließt. Controller: zum Öffnen standardmäßig keine Belegung, unter Einstellungen > Steuerung festlegen; in der Aufstellung funktionieren auch die Menütasten des Controllers.
+GitHub: https://github.com/DTM-Mods/FS25_MonthlyExpenseSheet
 
-- Jede Ausgaben- und Einnahmenkategorie des Monats mit Anzahl der Buchungen, Monatssumme und Vormonatssumme, mit rotem oder grünem Pfeil für mehr oder weniger.
-- Jede einzelne Buchung der gewählten Kategorie mit Datum und Uhrzeit.
-- Gesamtausgaben, Gesamteinnahmen und das Monatsergebnis.
-- Verkäufe zeigen, was verkauft wurde, etwa "Sold Wheat"; stündliche Einnahmen aus Generatoren, Windrädern und Solaranlagen stehen pro Gebäude.
-- Geld aus anderen Mods zeigt den Namen der Mod oder ihren eigenen Meldungstext.
-- Die Daten werden mit dem Spielstand gespeichert (die letzten 24 Monate). Im Mehrspieler speichert der Server die Daten und jeder Spieler sieht seinen eigenen Hof.
+Aufgezeichnet werden genau die Geldbewegungen, die oben rechts unter deinem Kontostand eingeblendet werden. Geld, das sich ohne Einblendung ändert, wird ebenfalls erfasst und als "Untracked balance changes" aufgeführt, sodass die Aufstellung immer genau dem entspricht, was mit deinem Kontostand passiert ist.
 
-So geht's: Linke Alt + M öffnet und schließt die Übersicht. Q / E: vorheriger / nächster Monat. Hoch / Runter: Kategorie wählen. Links / Rechts: Ausgaben / Einnahmen. Die Maus geht auch.
+Ausgaben und Einnahmen werden nach Kategorie aufgelistet, mit der Anzahl der Buchungen, der Summe des Monats und der Summe des Vormonats. Wähle eine Kategorie aus, um jede einzelne Buchung mit Datum und Uhrzeit zu sehen.
 
-Changelog 0.2.2.0:
-- Geld aus anderen Mods zeigt seinen echten Namen statt eines Textschlüssels.
-- Ein unbekannter Textschlüssel wird als lesbare Wörter statt als roher Schlüssel angezeigt.
+Die Aufzeichnungen werden mit deinem Spielstand gespeichert (die letzten 24 Monate). Funktioniert im Mehrspielermodus: Der Server führt die Aufzeichnungen, jeder Spieler sieht seinen eigenen Hof.
 ```
 
 ## Description French
 ```text
-Quand vous dormez, les messages d'argent sous votre solde en haut à droite défilent trop vite pour être lus. Ce mod enregistre chacun d'eux et les trie par mois de jeu, pour voir exactement où est passé votre argent. L'argent qui change sans message est aussi pris en compte, le relevé correspond donc toujours à votre solde.
+Description : enregistre chaque mouvement d'argent de votre ferme et le trie par mois et par catégorie, pour voir où est passé votre argent.
+Raccourcis clavier : Alt gauche+M ouvre et ferme le relevé. Dans le relevé : Q / E mois précédent / suivant, Haut / Bas choisir une catégorie, Gauche / Droite passer des dépenses aux revenus, la molette de la souris fait défiler les détails, Échap ferme. Manette : aucune touche par défaut pour ouvrir le relevé, à définir dans Paramètres > Commandes ; dans le relevé, les boutons de menu de la manette fonctionnent aussi.
+GitHub : https://github.com/DTM-Mods/FS25_MonthlyExpenseSheet
 
-- Chaque catégorie de dépenses et de revenus du mois avec le nombre d'opérations, le total du mois et celui du mois précédent, avec une flèche rouge ou verte pour la hausse ou la baisse.
-- Chaque opération de la catégorie choisie avec sa date et son heure.
-- Total des dépenses, total des revenus et le solde net du mois.
-- Les ventes indiquent ce qui a été vendu, comme "Sold Wheat" ; les revenus horaires des générateurs, éoliennes et panneaux solaires sont listés par bâtiment.
-- L'argent venant d'autres mods affiche le nom du mod ou son propre texte de message.
-- Les données sont enregistrées avec la sauvegarde (les 24 derniers mois). En multijoueur, le serveur conserve les données et chaque joueur voit sa propre ferme.
+Il enregistre les mêmes mouvements d'argent que ceux qui s'affichent sous votre solde en haut à droite. L'argent qui change sans message est aussi pris en compte et listé sous « Untracked balance changes », le relevé correspond donc toujours à ce qui est arrivé à votre solde.
 
-Utilisation : Alt gauche + M ouvre et ferme le relevé. Q / E : mois précédent / suivant. Haut / Bas : choisir une catégorie. Gauche / Droite : dépenses / revenus. La souris fonctionne aussi.
+Les dépenses et les revenus sont listés par catégorie avec le nombre d'opérations, le total du mois et celui du mois précédent. Choisissez une catégorie pour voir chaque opération avec sa date et son heure.
 
-Changelog 0.2.2.0 :
-- L'argent venant d'autres mods affiche son vrai nom au lieu d'une clé de texte.
-- Une clé de texte inconnue s'affiche en mots lisibles au lieu de la clé brute.
+Les données sont enregistrées avec la sauvegarde (les 24 derniers mois). Fonctionne en multijoueur : le serveur conserve les données, chaque joueur voit sa propre ferme.
 ```
 
 ## Before uploading
