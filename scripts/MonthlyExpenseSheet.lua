@@ -346,7 +346,7 @@ function MonthlyExpenseSheet.getAnimalTitle(animalType)
     if animalType.groupTitle ~= nil and animalType.groupTitle ~= "" then
         return animalType.groupTitle
     end
-    local name = (animalType.name or "?"):lower()
+    local name = (animalType.name or "?"):lower():gsub("_", " ")
     return (name:gsub("^%l", string.upper))
 end
 
@@ -631,12 +631,14 @@ function MonthlyExpenseSheet.loadFromXMLFile()
                 if not hasXMLProperty(xmlFile, entryKey) then
                     break
                 end
+                local amount = getXMLFloat(xmlFile, entryKey .. "#amount") or 0
                 table.insert(month.entries, {
-                    typeKey = getXMLString(xmlFile, entryKey .. "#type") or "other-",
+                    -- without a type: the key of "other" money without a title (see getType)
+                    typeKey = getXMLString(xmlFile, entryKey .. "#type") or (amount > 0 and "other|+" or "other|-"),
                     day = getXMLInt(xmlFile, entryKey .. "#day") or 1,
                     hour = getXMLInt(xmlFile, entryKey .. "#hour") or 0,
                     minute = getXMLInt(xmlFile, entryKey .. "#minute") or 0,
-                    amount = getXMLFloat(xmlFile, entryKey .. "#amount") or 0,
+                    amount = amount,
                     count = getXMLInt(xmlFile, entryKey .. "#count") or 1
                 })
                 entryIndex = entryIndex + 1

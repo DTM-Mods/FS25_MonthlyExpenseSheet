@@ -2,8 +2,7 @@
 (lupa) with small stubs for the game engine, then drives the records, the multiplayer events and the sheet.
 
 Usage: python tests/test_offline.py        (needs: pip install lupa)
-Prints one line per test and a summary; exit code 0 = all passed. XFAIL = a known problem in the mod that the
-test documents (does not fail the run); XPASS = that problem is gone, turn the test into a normal one.
+Prints one line per test and a summary; exit code 0 = all passed.
 Every test gets its own Lua state, so tests don't depend on each other."""
 import copy
 import os
@@ -400,11 +399,9 @@ class Mod:
 TESTS = []
 
 
-def test(func=None, xfail=None):
-    def add(f):
-        TESTS.append((f, xfail))
-        return f
-    return add(func) if func else add
+def test(func):
+    TESTS.append(func)
+    return func
 
 
 # ================================================================ 1. loading and hooks
@@ -710,7 +707,8 @@ def category_animals_and_popup_text():
     eq(MonthlyExpenseSheet.sellingAnimalType, nil, "marker after the sale")
     eq(T_type(1, 1308, "mesSold", "Goats", true).amount, 900, "type with a group title")
     eq(T_type(1, 1308, "mesSold", "Cow", true).amount, 400, "type without a group title")
-    eq(MonthlyExpenseSheet.getAnimalTitle({name = "WATER_BUFFALO"}), "Water_buffalo", "title from the name")
+    eq(MonthlyExpenseSheet.getAnimalTitle({name = "WATER_BUFFALO"}), "Water buffalo", "title from the name")
+    eq(MonthlyExpenseSheet.getAnimalTitle({name = "COW", groupTitle = ""}), "Cow", "title with an empty group title")
     eq(MonthlyExpenseSheet.getAnimalTitle({}), "?", "title without a name")
     eq(MonthlyExpenseSheet.findAnimalType("Excess animals sold - 5 Goat"), goat, "animal named in a text")
     eq(MonthlyExpenseSheet.findAnimalType("nothing here"), nil, "text without an animal")
@@ -876,6 +874,35 @@ def savegame_round_trip():
     g_currentMission.missionInfo.savegameDirectory = "C:/client"; g_currentMission.missionInfo:saveToXMLFile()
     """)
     assert list(c.disk) == ["C:/savegame1/monthlyExpenseSheet.xml"], list(c.disk)
+
+
+@test
+def savegame_entry_without_type():
+    """a saved charge without its type attribute is loaded as "other" money of the right side and shows in the details"""
+    m = Mod(load_map=False)
+    root = ET.fromstring(
+        '<monthlyExpenseSheet><farm id="1"><month year="13" period="8">'
+        '<type statistic="other" title="" isIncome="false" amount="-50" count="1"/>'
+        '<type statistic="other" title="" isIncome="true" amount="20" count="1"/>'
+        '<entry day="2" hour="7" minute="15" amount="-50" count="1"/>'
+        '<entry day="3" hour="8" minute="30" amount="20" count="1"/>'
+        '<entry type="other|-" day="4" hour="9" minute="45" amount="0" count="1"/>'
+        '</month></farm></monthlyExpenseSheet>')
+    m.disk["C:/savegame1/monthlyExpenseSheet.xml"] = root
+    m.run(r"""
+    T_listener():loadMap("map.i3d")
+    local month = MonthlyExpenseSheet.farms[1][1308]
+    eq(#month.entries, 3, "entries loaded")
+    eq(month.entries[1].typeKey, MonthlyExpenseSheet.getType(month, "other", "", false).key, "key of an expense without a type")
+    eq(month.entries[2].typeKey, MonthlyExpenseSheet.getType(month, "other", "", true).key, "key of an income without a type")
+    eq(month.entries[3].typeKey, "other|-", "key that was saved")
+    eq(T_count(month.types), 2, "types after loading")
+    MonthlyExpenseSheetDisplay.open(); T_draw()
+    assert(T_has("Oct 2   07:15") and T_has("- $50"), "the expense without a type is missing in the details")
+    assert(not T_has("Oct 3   08:30"), "the income is listed with the expenses")
+    T_press("LR", 1); T_draw()
+    assert(T_has("Oct 3   08:30") and T_has("+ $20"), "the income without a type is missing in the details")
+    """)
 
 
 # ================================================================ 3. multiplayer events
@@ -1172,17 +1199,20 @@ def change_month_keys():
     """)
 
 
-@test(xfail="MonthlyExpenseSheetDisplay.lua:282 - next month from the newest (empty) month jumps to the oldest month")
+@test
 def change_month_next_from_empty_current_month():
-    """E in the current month, which has no records yet, must not jump back to the oldest month"""
+    """E in the current month, which has no records yet, goes to the newest recorded month, not back to the oldest"""
     m = Mod()
     m.run(r"""
     local R = MonthlyExpenseSheet.record
     R(1, -1, "other", "x", 13, 4, 1, 0, 0); R(1, -1, "other", "x", 13, 6, 1, 0, 0); R(1, -1, "other", "x", 13, 7, 1, 0, 0)
     MonthlyExpenseSheetDisplay.open()                          -- October, nothing recorded yet
-    T_press("NEXT")
-    local heading = T_heading()
-    assert(heading == "OCTOBER  -  Year 13" or heading == "SEPTEMBER  -  Year 13", "next month went to " .. heading)
+    T_press("NEXT"); eq(T_heading(), "SEPTEMBER  -  Year 13", "next from the empty current month")
+    T_press("NEXT"); eq(T_heading(), "SEPTEMBER  -  Year 13", "next again")
+    T_press("PREV"); eq(T_heading(), "AUGUST  -  Year 13", "previous after that")
+    -- the same with the right arrow of the month tabs
+    MonthlyExpenseSheetDisplay.close(); MonthlyExpenseSheetDisplay.open()
+    T_draw(); T_click(">"); eq(T_heading(), "SEPTEMBER  -  Year 13", "right arrow from the empty current month")
     """)
 
 
@@ -1322,29 +1352,19 @@ def mouse_wheel_scrolls_list_or_details():
 
 # ---------------------------------------------------------------- runner
 def main():
-    passed = failed = xfailed = xpassed = 0
-    for func, xfail in TESTS:
+    failed = 0
+    for func in TESTS:
         try:
             func()
         except Exception as ex:                    # LuaError, AssertionError or an error in a stub
-            line = (str(ex).strip().splitlines() or [type(ex).__name__])[0]
-            if xfail:
-                xfailed += 1
-                print("XFAIL %s: %s  [%s]" % (func.__name__, xfail, line))
-            else:
-                failed += 1
-                print("FAIL  %s: %s" % (func.__name__, line))
-                if "-v" in sys.argv:
-                    traceback.print_exc()
+            failed += 1
+            print("FAIL  %s: %s" % (func.__name__, (str(ex).strip().splitlines() or [type(ex).__name__])[0]))
+            if "-v" in sys.argv:
+                traceback.print_exc()
             continue
-        if xfail:
-            xpassed += 1
-            print("XPASS %s: the known problem is gone (%s)" % (func.__name__, xfail))
-        else:
-            passed += 1
-            print("ok    %s" % func.__name__)
-    print("%d tests: %d passed, %d failed, %d known problems (xfail), %d fixed (xpass) - %s"
-          % (len(TESTS), passed, failed, xfailed, xpassed, "FAILED" if failed else "ALL OK"))
+        print("ok    %s" % func.__name__)
+    print("%d tests: %d passed, %d failed - %s"
+          % (len(TESTS), len(TESTS) - failed, failed, "FAILED" if failed else "ALL OK"))
     return 1 if failed else 0
 
 

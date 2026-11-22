@@ -4,6 +4,13 @@
 
 # Patch notes
 
+## 1.0.0.3
+
+- Fix: pressing E (or the right arrow) in the current month before anything was recorded in it jumped back to the oldest month. It now goes to the newest month that has records.
+- Fix: a saved entry whose category is missing from the savegame file now shows under Other instead of disappearing.
+- Fix: animal names made of several words show with spaces (Water buffalo, not Water_buffalo).
+- Offline tests (`tests/test_offline.py`, 29 tests), run by every build.
+
 ## 1.0.0.2
 
 - Description in GIANTS' ModHub layout (category, price, upkeep or hotkeys at the top).

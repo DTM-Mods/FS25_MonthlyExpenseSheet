@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="116">
     <author>DTM Mods, PropaineX</author>
-    <version>1.0.0.2</version>
+    <version>1.0.0.3</version>
     <title>
         <en>Monthly Expense Sheet Pro Edition</en>
     </title>
@@ -16,8 +16,10 @@ Expenses and income are listed by category with the number of charges, the month
 
 The records are saved with your savegame (the last 24 months). Works in multiplayer: the server keeps the records, each player sees their own farm.
 
-Changelog 1.0.0.2:
-- Description in GIANTS' ModHub layout (category, price, upkeep or hotkeys at the top).]]></en>
+Changelog 1.0.0.3:
+- Fixed: the next-month key in an empty current month jumped to the oldest month.
+- Fixed: saved entries without a category now show under Other.
+- Animal names made of several words show with spaces.]]></en>
         <de><![CDATA[Beschreibung: Zeichnet jede Geldbewegung auf deinem Hof auf und sortiert sie nach Monat und Kategorie, damit du siehst, wohin dein Geld gegangen ist.
 Tastenkombinationen: Linke Alt-Taste+M öffnet und schließt die Aufstellung. In der Aufstellung: Q / E vorheriger / nächster Monat, Hoch / Runter Kategorie auswählen, Links / Rechts zwischen Ausgaben und Einnahmen wechseln, das Mausrad scrollt die Details, Esc schließt. Controller: zum Öffnen standardmäßig keine Belegung, unter Einstellungen > Steuerung festlegen; in der Aufstellung funktionieren auch die Menütasten des Controllers.
 GitHub: https://github.com/DTM-Mods/FS25_MonthlyExpenseSheet
@@ -28,8 +30,10 @@ Ausgaben und Einnahmen werden nach Kategorie aufgelistet, mit der Anzahl der Buc
 
 Die Aufzeichnungen werden mit deinem Spielstand gespeichert (die letzten 24 Monate). Funktioniert im Mehrspielermodus: Der Server führt die Aufzeichnungen, jeder Spieler sieht seinen eigenen Hof.
 
-Changelog 1.0.0.2:
-- Beschreibung im ModHub-Aufbau von GIANTS (Kategorie, Preis, Unterhalt bzw. Tasten oben).]]></de>
+Changelog 1.0.0.3:
+- Behoben: Die Taste für den nächsten Monat sprang in einem leeren aktuellen Monat zum ältesten Monat.
+- Behoben: Gespeicherte Einträge ohne Kategorie erscheinen jetzt unter Sonstiges.
+- Tiernamen aus mehreren Wörtern werden mit Leerzeichen angezeigt.]]></de>
     </description>
     <iconFilename>icon_MonthlyExpenseSheet.dds</iconFilename>
     <multiplayer supported="true" />

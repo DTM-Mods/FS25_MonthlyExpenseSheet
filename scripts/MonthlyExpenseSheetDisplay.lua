@@ -279,7 +279,7 @@ function MonthlyExpenseSheetDisplay.changeMonth(direction)
     end
     -- the current month may have no records yet; step from where it would be
     if index == nil then
-        index = direction < 0 and #keys + 1 or 0
+        index = direction < 0 and #keys + 1 or #keys
         for i, monthKey in ipairs(keys) do
             if monthKey > state.monthKey then
                 index = direction < 0 and i or i - 1
